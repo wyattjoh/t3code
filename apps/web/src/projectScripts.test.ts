@@ -34,6 +34,7 @@ describe("projectScripts helpers", () => {
         command: "bun install",
         icon: "configure" as const,
         runOnWorktreeCreate: true,
+        runOnWorktreeDelete: false,
       },
       {
         id: "test",
@@ -41,6 +42,7 @@ describe("projectScripts helpers", () => {
         command: "bun test",
         icon: "test" as const,
         runOnWorktreeCreate: false,
+        runOnWorktreeDelete: false,
       },
     ];
 

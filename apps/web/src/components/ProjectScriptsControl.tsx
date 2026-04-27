@@ -83,6 +83,7 @@ export interface NewProjectScriptInput {
   command: string;
   icon: ProjectScriptIcon;
   runOnWorktreeCreate: boolean;
+  runOnWorktreeDelete: boolean;
   keybinding: string | null;
 }
 
@@ -164,6 +165,7 @@ export default function ProjectScriptsControl({
   const [icon, setIcon] = useState<ProjectScriptIcon>("play");
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
   const [runOnWorktreeCreate, setRunOnWorktreeCreate] = useState(false);
+  const [runOnWorktreeDelete, setRunOnWorktreeDelete] = useState(false);
   const [keybinding, setKeybinding] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -221,6 +223,7 @@ export default function ProjectScriptsControl({
         command: trimmedCommand,
         icon,
         runOnWorktreeCreate,
+        runOnWorktreeDelete,
         keybinding: keybindingRule?.key ?? null,
       } satisfies NewProjectScriptInput;
       if (editingScriptId) {
@@ -242,6 +245,7 @@ export default function ProjectScriptsControl({
     setIcon("play");
     setIconPickerOpen(false);
     setRunOnWorktreeCreate(false);
+    setRunOnWorktreeDelete(false);
     setKeybinding("");
     setValidationError(null);
     setDialogOpen(true);
@@ -254,6 +258,7 @@ export default function ProjectScriptsControl({
     setIcon(script.icon);
     setIconPickerOpen(false);
     setRunOnWorktreeCreate(script.runOnWorktreeCreate);
+    setRunOnWorktreeDelete(script.runOnWorktreeDelete);
     setKeybinding(keybindingValueForCommand(keybindings, commandForProjectScript(script.id)) ?? "");
     setValidationError(null);
     setDialogOpen(true);
@@ -265,6 +270,14 @@ export default function ProjectScriptsControl({
     setDialogOpen(false);
     void onDeleteScript(editingScriptId);
   }, [editingScriptId, onDeleteScript]);
+
+  const lifecycleLabel = (script: ProjectScript): string => {
+    const tags = [
+      ...(script.runOnWorktreeCreate ? (["setup"] as const) : []),
+      ...(script.runOnWorktreeDelete ? (["cleanup"] as const) : []),
+    ];
+    return tags.length > 0 ? `${script.name} (${tags.join(", ")})` : script.name;
+  };
 
   return (
     <>
@@ -301,9 +314,7 @@ export default function ProjectScriptsControl({
                     onClick={() => onRunScript(script)}
                   >
                     <ScriptIcon icon={script.icon} className="size-4" />
-                    <span className="truncate">
-                      {script.runOnWorktreeCreate ? `${script.name} (setup)` : script.name}
-                    </span>
+                    <span className="truncate">{lifecycleLabel(script)}</span>
                     <span className="relative ms-auto flex h-6 min-w-6 items-center justify-end">
                       {shortcutLabel && (
                         <MenuShortcut className="ms-0 transition-opacity group-hover:opacity-0 group-focus-visible:opacity-0">
@@ -362,6 +373,7 @@ export default function ProjectScriptsControl({
           setCommand("");
           setIcon("play");
           setRunOnWorktreeCreate(false);
+          setRunOnWorktreeDelete(false);
           setKeybinding("");
           setValidationError(null);
         }}
@@ -454,6 +466,13 @@ export default function ProjectScriptsControl({
                 <Switch
                   checked={runOnWorktreeCreate}
                   onCheckedChange={(checked) => setRunOnWorktreeCreate(Boolean(checked))}
+                />
+              </label>
+              <label className="flex items-center justify-between gap-3 rounded-md border border-border/70 px-3 py-2 text-sm">
+                <span>Run automatically before worktree deletion</span>
+                <Switch
+                  checked={runOnWorktreeDelete}
+                  onCheckedChange={(checked) => setRunOnWorktreeDelete(Boolean(checked))}
                 />
               </label>
               {validationError && <p className="text-sm text-destructive">{validationError}</p>}

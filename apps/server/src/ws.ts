@@ -14,6 +14,7 @@ import {
   OrchestrationGetSnapshotError,
   OrchestrationGetTurnDiffError,
   ORCHESTRATION_WS_METHODS,
+  ProjectRunWorktreeDeleteHookError,
   ProjectSearchEntriesError,
   ProjectWriteFileError,
   OrchestrationReplayEventsError,
@@ -799,6 +800,20 @@ const makeWsRpcLayer = (currentSessionId: AuthSessionId) =>
                   cause,
                 });
               }),
+            ),
+            { "rpc.aggregate": "workspace" },
+          ),
+        [WS_METHODS.projectsRunWorktreeDeleteHook]: (input) =>
+          observeRpcEffect(
+            WS_METHODS.projectsRunWorktreeDeleteHook,
+            projectSetupScriptRunner.runWorktreeDeleteHook(input).pipe(
+              Effect.mapError(
+                (error) =>
+                  new ProjectRunWorktreeDeleteHookError({
+                    message: error.message,
+                    cause: error,
+                  }),
+              ),
             ),
             { "rpc.aggregate": "workspace" },
           ),

@@ -108,6 +108,7 @@ describe("ProjectSetupScriptRunner", () => {
                         command: "bun install",
                         icon: "configure",
                         runOnWorktreeCreate: true,
+                        runOnWorktreeDelete: false,
                       },
                     ]),
                   ),
@@ -162,5 +163,65 @@ describe("ProjectSetupScriptRunner", () => {
       terminalId: "setup-setup",
       data: "bun install\r",
     });
+  });
+
+  it("runs the worktree delete hook with lifecycle env and waits for completion", async () => {
+    const open = vi.fn();
+    const write = vi.fn();
+    const runner = await Effect.runPromise(
+      Effect.service(ProjectSetupScriptRunner).pipe(
+        Effect.provide(
+          ProjectSetupScriptRunnerLive.pipe(
+            Layer.provideMerge(
+              Layer.succeed(OrchestrationEngineService, {
+                getReadModel: () =>
+                  Effect.succeed(
+                    emptySnapshot([
+                      {
+                        id: "cleanup",
+                        name: "Cleanup",
+                        command: "echo cleanup",
+                        icon: "configure",
+                        runOnWorktreeCreate: false,
+                        runOnWorktreeDelete: true,
+                      },
+                    ]),
+                  ),
+                readEvents: () => Stream.empty,
+                dispatch: () => Effect.die(new Error("unused")),
+                streamDomainEvents: Stream.empty,
+              }),
+            ),
+            Layer.provideMerge(
+              Layer.succeed(TerminalManager, {
+                open,
+                write,
+                resize: () => Effect.void,
+                clear: () => Effect.void,
+                restart: () => Effect.die(new Error("unused")),
+                close: () => Effect.void,
+                subscribe: () => Effect.succeed(() => undefined),
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    const result = await Effect.runPromise(
+      runner.runWorktreeDeleteHook({
+        projectId: "project-1",
+        worktreePath: "/repo/worktrees/a",
+      }),
+    );
+
+    expect(result).toEqual({
+      status: "completed",
+      scriptId: "cleanup",
+      scriptName: "Cleanup",
+      cwd: "/repo/worktrees/a",
+    });
+    expect(open).not.toHaveBeenCalled();
+    expect(write).not.toHaveBeenCalled();
   });
 });

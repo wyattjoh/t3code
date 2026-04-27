@@ -52,6 +52,9 @@ import {
   ProjectSearchEntriesError,
   ProjectSearchEntriesInput,
   ProjectSearchEntriesResult,
+  ProjectRunWorktreeDeleteHookError,
+  ProjectRunWorktreeDeleteHookInput,
+  ProjectRunWorktreeDeleteHookResult,
   ProjectWriteFileError,
   ProjectWriteFileInput,
   ProjectWriteFileResult,
@@ -83,6 +86,7 @@ export const WS_METHODS = {
   projectsAdd: "projects.add",
   projectsRemove: "projects.remove",
   projectsSearchEntries: "projects.searchEntries",
+  projectsRunWorktreeDeleteHook: "projects.runWorktreeDeleteHook",
   projectsWriteFile: "projects.writeFile",
 
   // Shell methods
@@ -167,6 +171,15 @@ export const WsProjectsWriteFileRpc = Rpc.make(WS_METHODS.projectsWriteFile, {
   success: ProjectWriteFileResult,
   error: ProjectWriteFileError,
 });
+
+export const WsProjectsRunWorktreeDeleteHookRpc = Rpc.make(
+  WS_METHODS.projectsRunWorktreeDeleteHook,
+  {
+    payload: ProjectRunWorktreeDeleteHookInput,
+    success: ProjectRunWorktreeDeleteHookResult,
+    error: ProjectRunWorktreeDeleteHookError,
+  },
+);
 
 export const WsShellOpenInEditorRpc = Rpc.make(WS_METHODS.shellOpenInEditor, {
   payload: OpenInEditorInput,
@@ -362,6 +375,7 @@ export const WsRpcGroup = RpcGroup.make(
   WsServerGetSettingsRpc,
   WsServerUpdateSettingsRpc,
   WsProjectsSearchEntriesRpc,
+  WsProjectsRunWorktreeDeleteHookRpc,
   WsProjectsWriteFileRpc,
   WsShellOpenInEditorRpc,
   WsFilesystemBrowseRpc,

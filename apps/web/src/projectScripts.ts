@@ -56,6 +56,8 @@ export function nextProjectScriptId(name: string, existingIds: Iterable<string>)
 }
 
 export function primaryProjectScript(scripts: ProjectScript[]): ProjectScript | null {
-  const regular = scripts.find((script) => !script.runOnWorktreeCreate);
+  const regular = scripts.find(
+    (script) => !script.runOnWorktreeCreate && !script.runOnWorktreeDelete,
+  );
   return regular ?? scripts[0] ?? null;
 }

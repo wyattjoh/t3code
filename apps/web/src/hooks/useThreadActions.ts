@@ -209,6 +209,11 @@ export function useThreadActions() {
       }
 
       try {
+        await ensureEnvironmentApi(threadRef.environmentId).projects.runWorktreeDeleteHook({
+          projectId: thread.projectId,
+          projectCwd: threadProject.cwd,
+          worktreePath: orphanedWorktreePath,
+        });
         await ensureEnvironmentApi(threadRef.environmentId).git.removeWorktree({
           cwd: threadProject.cwd,
           path: orphanedWorktreePath,

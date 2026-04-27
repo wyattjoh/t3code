@@ -22,6 +22,8 @@ import type { FilesystemBrowseInput, FilesystemBrowseResult } from "./filesystem
 import type {
   ProjectSearchEntriesInput,
   ProjectSearchEntriesResult,
+  ProjectRunWorktreeDeleteHookInput,
+  ProjectRunWorktreeDeleteHookResult,
   ProjectWriteFileInput,
   ProjectWriteFileResult,
 } from "./project.ts";
@@ -243,6 +245,9 @@ export interface EnvironmentApi {
   };
   projects: {
     searchEntries: (input: ProjectSearchEntriesInput) => Promise<ProjectSearchEntriesResult>;
+    runWorktreeDeleteHook: (
+      input: ProjectRunWorktreeDeleteHookInput,
+    ) => Promise<ProjectRunWorktreeDeleteHookResult>;
     writeFile: (input: ProjectWriteFileInput) => Promise<ProjectWriteFileResult>;
   };
   filesystem: {

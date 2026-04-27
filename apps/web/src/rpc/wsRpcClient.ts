@@ -66,6 +66,7 @@ export interface WsRpcClient {
   };
   readonly projects: {
     readonly searchEntries: RpcUnaryMethod<typeof WS_METHODS.projectsSearchEntries>;
+    readonly runWorktreeDeleteHook: RpcUnaryMethod<typeof WS_METHODS.projectsRunWorktreeDeleteHook>;
     readonly writeFile: RpcUnaryMethod<typeof WS_METHODS.projectsWriteFile>;
   };
   readonly filesystem: {
@@ -145,6 +146,8 @@ export function createWsRpcClient(transport: WsTransport): WsRpcClient {
     projects: {
       searchEntries: (input) =>
         transport.request((client) => client[WS_METHODS.projectsSearchEntries](input)),
+      runWorktreeDeleteHook: (input) =>
+        transport.request((client) => client[WS_METHODS.projectsRunWorktreeDeleteHook](input)),
       writeFile: (input) =>
         transport.request((client) => client[WS_METHODS.projectsWriteFile](input)),
     },

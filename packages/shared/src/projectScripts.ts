@@ -35,3 +35,9 @@ export function projectScriptRuntimeEnv(
 export function setupProjectScript(scripts: readonly ProjectScript[]): ProjectScript | null {
   return scripts.find((script) => script.runOnWorktreeCreate) ?? null;
 }
+
+export function worktreeDeleteProjectScript(
+  scripts: readonly ProjectScript[],
+): ProjectScript | null {
+  return scripts.find((script) => script.runOnWorktreeDelete) ?? null;
+}

@@ -13,9 +13,21 @@ export interface ProjectSetupScriptRunnerResultStarted {
   readonly cwd: string;
 }
 
+export interface ProjectSetupScriptRunnerResultCompleted {
+  readonly status: "completed";
+  readonly scriptId: string;
+  readonly scriptName: string;
+  readonly cwd: string;
+}
+
 export type ProjectSetupScriptRunnerResult =
   | ProjectSetupScriptRunnerResultNoScript
-  | ProjectSetupScriptRunnerResultStarted;
+  | ProjectSetupScriptRunnerResultStarted
+  | ProjectSetupScriptRunnerResultCompleted;
+
+export type ProjectWorktreeDeleteHookResult =
+  | ProjectSetupScriptRunnerResultNoScript
+  | ProjectSetupScriptRunnerResultCompleted;
 
 export interface ProjectSetupScriptRunnerInput {
   readonly threadId: string;
@@ -29,6 +41,11 @@ export interface ProjectSetupScriptRunnerShape {
   readonly runForThread: (
     input: ProjectSetupScriptRunnerInput,
   ) => Effect.Effect<ProjectSetupScriptRunnerResult, Error>;
+  readonly runWorktreeDeleteHook: (input: {
+    readonly projectId?: string;
+    readonly projectCwd?: string;
+    readonly worktreePath: string;
+  }) => Effect.Effect<ProjectWorktreeDeleteHookResult, Error>;
 }
 
 export class ProjectSetupScriptRunner extends Context.Service<

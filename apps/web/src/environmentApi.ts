@@ -18,6 +18,7 @@ export function createEnvironmentApi(rpcClient: WsRpcClient): EnvironmentApi {
     },
     projects: {
       searchEntries: rpcClient.projects.searchEntries,
+      runWorktreeDeleteHook: rpcClient.projects.runWorktreeDeleteHook,
       writeFile: rpcClient.projects.writeFile,
     },
     filesystem: {

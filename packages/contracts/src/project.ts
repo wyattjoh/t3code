@@ -53,3 +53,31 @@ export class ProjectWriteFileError extends Schema.TaggedErrorClass<ProjectWriteF
     cause: Schema.optional(Schema.Defect),
   },
 ) {}
+
+export const ProjectRunWorktreeDeleteHookInput = Schema.Struct({
+  projectId: Schema.optionalKey(TrimmedNonEmptyString),
+  projectCwd: Schema.optionalKey(TrimmedNonEmptyString),
+  worktreePath: TrimmedNonEmptyString,
+});
+export type ProjectRunWorktreeDeleteHookInput = typeof ProjectRunWorktreeDeleteHookInput.Type;
+
+export const ProjectRunWorktreeDeleteHookResult = Schema.Union([
+  Schema.Struct({
+    status: Schema.Literal("no-script"),
+  }),
+  Schema.Struct({
+    status: Schema.Literal("completed"),
+    scriptId: TrimmedNonEmptyString,
+    scriptName: TrimmedNonEmptyString,
+    cwd: TrimmedNonEmptyString,
+  }),
+]);
+export type ProjectRunWorktreeDeleteHookResult = typeof ProjectRunWorktreeDeleteHookResult.Type;
+
+export class ProjectRunWorktreeDeleteHookError extends Schema.TaggedErrorClass<ProjectRunWorktreeDeleteHookError>()(
+  "ProjectRunWorktreeDeleteHookError",
+  {
+    message: TrimmedNonEmptyString,
+    cause: Schema.optional(Schema.Defect),
+  },
+) {}

@@ -1781,15 +1781,16 @@ export default function ChatView(props: ChatViewProps) {
         command: input.command,
         icon: input.icon,
         runOnWorktreeCreate: input.runOnWorktreeCreate,
+        runOnWorktreeDelete: input.runOnWorktreeDelete,
       };
-      const nextScripts = input.runOnWorktreeCreate
-        ? [
-            ...activeProject.scripts.map((script) =>
-              script.runOnWorktreeCreate ? { ...script, runOnWorktreeCreate: false } : script,
-            ),
-            nextScript,
-          ]
-        : [...activeProject.scripts, nextScript];
+      const nextScripts = [
+        ...activeProject.scripts.map((script) => ({
+          ...script,
+          runOnWorktreeCreate: input.runOnWorktreeCreate ? false : script.runOnWorktreeCreate,
+          runOnWorktreeDelete: input.runOnWorktreeDelete ? false : script.runOnWorktreeDelete,
+        })),
+        nextScript,
+      ];
 
       await persistProjectScripts({
         projectId: activeProject.id,
@@ -1816,13 +1817,16 @@ export default function ChatView(props: ChatViewProps) {
         command: input.command,
         icon: input.icon,
         runOnWorktreeCreate: input.runOnWorktreeCreate,
+        runOnWorktreeDelete: input.runOnWorktreeDelete,
       };
       const nextScripts = activeProject.scripts.map((script) =>
         script.id === scriptId
           ? updatedScript
-          : input.runOnWorktreeCreate
-            ? { ...script, runOnWorktreeCreate: false }
-            : script,
+          : {
+              ...script,
+              runOnWorktreeCreate: input.runOnWorktreeCreate ? false : script.runOnWorktreeCreate,
+              runOnWorktreeDelete: input.runOnWorktreeDelete ? false : script.runOnWorktreeDelete,
+            },
       );
 
       await persistProjectScripts({

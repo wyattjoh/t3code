@@ -445,6 +445,7 @@ const buildAppUnderTest = (options?: {
       Layer.provide(
         Layer.mock(ProjectSetupScriptRunner)({
           runForThread: () => Effect.succeed({ status: "no-script" as const }),
+          runWorktreeDeleteHook: () => Effect.succeed({ status: "no-script" as const }),
           ...options?.layers?.projectSetupScriptRunner,
         }),
       ),
@@ -2202,6 +2203,51 @@ it.layer(NodeServices.layer)("server router seam", (it) => {
         result.failure.message,
         "Workspace file path must stay within the project root.",
       );
+    }).pipe(Effect.provide(NodeHttpServer.layerTest)),
+  );
+
+  it.effect("routes websocket rpc projects.runWorktreeDeleteHook", () =>
+    Effect.gen(function* () {
+      let receivedInput:
+        | Parameters<ProjectSetupScriptRunnerShape["runWorktreeDeleteHook"]>[0]
+        | null = null;
+      yield* buildAppUnderTest({
+        layers: {
+          projectSetupScriptRunner: {
+            runWorktreeDeleteHook: (input) =>
+              Effect.sync(() => {
+                receivedInput = input;
+                return {
+                  status: "completed" as const,
+                  scriptId: "cleanup",
+                  scriptName: "Cleanup",
+                  cwd: input.worktreePath,
+                };
+              }),
+          },
+        },
+      });
+
+      const wsUrl = yield* getWsServerUrl("/ws");
+      const response = yield* Effect.scoped(
+        withWsRpcClient(wsUrl, (client) =>
+          client[WS_METHODS.projectsRunWorktreeDeleteHook]({
+            projectId: "project-1",
+            worktreePath: "/tmp/worktree",
+          }),
+        ),
+      );
+
+      assert.deepEqual(receivedInput, {
+        projectId: "project-1",
+        worktreePath: "/tmp/worktree",
+      });
+      assert.deepEqual(response, {
+        status: "completed",
+        scriptId: "cleanup",
+        scriptName: "Cleanup",
+        cwd: "/tmp/worktree",
+      });
     }).pipe(Effect.provide(NodeHttpServer.layerTest)),
   );
 

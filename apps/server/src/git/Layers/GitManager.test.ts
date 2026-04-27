@@ -651,6 +651,7 @@ function makeManager(input?: {
       ProjectSetupScriptRunner,
       input?.setupScriptRunner ?? {
         runForThread: () => Effect.succeed({ status: "no-script" as const }),
+        runWorktreeDeleteHook: () => Effect.succeed({ status: "no-script" as const }),
       },
     ),
     gitCoreLayer,
@@ -2413,6 +2414,7 @@ it.layer(GitManagerTestLayer)("GitManager", (it) => {
               setupCalls.push(setupInput);
               return { status: "no-script" as const };
             }),
+          runWorktreeDeleteHook: () => Effect.succeed({ status: "no-script" as const }),
         },
       });
 
@@ -2635,6 +2637,7 @@ it.layer(GitManagerTestLayer)("GitManager", (it) => {
               setupCalls.push(setupInput);
               return { status: "no-script" as const };
             }),
+          runWorktreeDeleteHook: () => Effect.succeed({ status: "no-script" as const }),
         },
       });
 
@@ -2857,6 +2860,7 @@ it.layer(GitManagerTestLayer)("GitManager", (it) => {
         },
         setupScriptRunner: {
           runForThread: () => Effect.fail(new Error("terminal start failed")),
+          runWorktreeDeleteHook: () => Effect.succeed({ status: "no-script" as const }),
         },
       });
 
